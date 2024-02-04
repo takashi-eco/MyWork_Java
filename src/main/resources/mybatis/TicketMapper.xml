@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.app.mapper.TicketMapper">
+
+	<select id="selectAllGames" resultType="Ticket">
+		SELECT 
+				games.id, 
+				games.date AS gameDate,
+				teams.name AS vsTeamName,
+				games.sale_start_date,
+				games.sale_end_date,
+	  <![CDATA[ CASE
+				WHEN games.sale_start_date > NOW() THEN '発売前'
+				WHEN games.sale_start_date < NOW() AND NOW() < games.sale_end_date THEN '発売中'
+				WHEN games.sale_end_date < NOW() THEN '販売終了'
+				END AS sale_status,
+				CASE
+	  			WHEN DATE_ADD(games.sale_end_date, INTERVAL 5 DAY) >= NOW() THEN 'true'
+                ELSE 'false'
+	  			END AS disp_flag ]]>
+		FROM games
+		JOIN teams
+		ON games.vs_team = teams.id
+		HAVING disp_flag = 'true'
+	</select>
+	
+	
+		
+	<select id="selectByGameId" parameterType="int" resultType="Ticket">
+		SELECT 
+				tickets.id, 
+				tickets.game_id,
+				games.date AS gameDate,
+				games.start_time,
+				DATE_SUB(games.start_time, INTERVAL 2 HOUR) AS open_time,
+				game_title.name AS vsTeamName, 
+				
+	  <![CDATA[ CASE
+				WHEN weather_main.main = "Rain" THEN "雨割引"
+				WHEN DATE_SUB(DATE_ADD(NOW(), INTERVAL 3 MONTH), INTERVAL 14 DAY) <= games.date 
+					AND games.date <= DATE_ADD(NOW(), INTERVAL 3 MONTH) THEN "早割り" 
+				END AS discount_name,
+	  			CASE
+				WHEN weather_main.main = "Rain" THEN 30
+				WHEN DATE_SUB(games.date, INTERVAL 3 MONTH) <= NOW() 
+					AND NOW() <= DATE_ADD(DATE_SUB(games.date, INTERVAL 3 MONTH), INTERVAL 2 WEEK) THEN 10
+				ELSE 0
+				END AS discount_rate,
+				CASE
+				WHEN games.sale_start_date > NOW() THEN '発売前'
+				WHEN games.sale_start_date < NOW() AND NOW() < games.sale_end_date THEN '発売中'
+				WHEN games.sale_end_date < NOW() THEN '販売終了'
+				END AS sale_status, 
+				seat_type.name AS seatTypeName,
+				seat_type.price AS seatTypePrice,
+				tickets.stock_num,
+				CASE
+				WHEN tickets.stock_num > 5 THEN '◎ 発売中'
+				WHEN tickets.stock_num <= 5 AND tickets.stock_num > 0 THEN '△ 残りわずか'
+				WHEN tickets.stock_num = 0 THEN '× 売り切れ'
+				END AS stock_status ]]>
+		FROM tickets
+		JOIN games
+		ON tickets.game_id = games.id
+		JOIN seat_type
+		ON tickets.seat_type = seat_type.id
+		JOIN (
+			SELECT games.id, teams.name 
+            FROM games 
+            JOIN teams 
+            ON games.vs_team = teams.id
+		) AS game_title 
+        ON tickets.game_id = game_title.id
+        JOIN (
+			SELECT games.id, games.date, weather.main
+			FROM games
+        	LEFT JOIN weather
+        	ON CAST(games.date AS DATE) = CAST( (SELECT weather.date WHERE TIME(weather.date) = "12:00:00") AS DATE)
+		) AS weather_main
+		ON tickets.game_id = weather_main.id
+		WHERE tickets.game_id = #{id}
+		
+	</select>
+	
+	<select id="selectByTicketId" parameterType="int" resultType="Ticket">
+		SELECT 
+				tickets.id, 
+				tickets.game_id,
+				games.date AS gameDate,
+				game_title.name AS vsTeamName, 
+	  <![CDATA[ CASE
+				WHEN weather_main.main = "Rain" THEN 30
+				WHEN DATE_SUB(games.date, INTERVAL 3 MONTH) <= NOW() 
+					AND NOW() <= DATE_ADD(DATE_SUB(games.date, INTERVAL 3 MONTH), INTERVAL 2 WEEK) THEN 10
+				ELSE 0
+				END AS discount_rate, ]]>
+				seat_type.name AS seatTypeName,
+				seat_type.price AS seatTypePrice,
+				tickets.stock_num
+		FROM tickets
+		JOIN games
+		ON tickets.game_id = games.id
+		JOIN seat_type
+		ON tickets.seat_type = seat_type.id
+		JOIN (
+			SELECT games.id, teams.name 
+			FROM games 
+            JOIN teams 
+            ON games.vs_team = teams.id
+		)AS game_title 
+		ON tickets.game_id = game_title.id
+		JOIN (
+			SELECT games.id, games.date, weather.main
+			FROM games
+        	LEFT JOIN weather
+        	ON CAST(games.date AS DATE) = CAST( (SELECT weather.date WHERE TIME(weather.date) = "12:00:00") AS DATE)
+		) AS weather_main
+		ON tickets.game_id = weather_main.id
+		WHERE tickets.id = #{id}
+	</select>
+	
+	<select id="selectStockNumByticketId" parameterType="int" resultType="Ticket">
+		SELECT * FROM tickets
+		WHERE id = #{id}
+	</select>
+	
+	<select id="selectLimitedGames" resultType="Ticket">
+		SELECT 
+				games.id, 
+				games.date AS gameDate,
+				teams.name AS vsTeamName,
+				games.sale_start_date,
+				games.sale_end_date,
+	  <![CDATA[ CASE
+				WHEN games.sale_start_date > NOW() THEN '発売前'
+				WHEN games.sale_start_date < NOW() AND NOW() < games.sale_end_date THEN '発売中'
+				WHEN games.sale_end_date < NOW() THEN '販売終了'
+				END AS sale_status,
+				CASE
+	  			WHEN DATE_ADD(games.sale_end_date, INTERVAL 2 DAY) >= NOW() THEN 'true'
+                ELSE 'false'
+	  			END AS disp_flag ]]>
+		FROM games
+		JOIN teams
+		ON games.vs_team = teams.id
+		HAVING disp_flag = 'true'
+		LIMIT #{offset}, #{limit}
+	</select>
+	
+	<select id="count" resultType="long">
+		SELECT 
+		COUNT(
+		<![CDATA[ CASE
+		   		  WHEN DATE_ADD(sale_end_date, INTERVAL 5 DAY) >= NOW() THEN 'true'
+		   		  END) AS disp_flag ]]>
+		FROM games
+	</select>
+	
+	
+	<update id="updateStockNum" parameterType="Ticket">
+		UPDATE tickets
+		SET stock_num = #{stockNum}
+		WHERE id = #{id}
+	</update>
+	
+	
+</mapper>

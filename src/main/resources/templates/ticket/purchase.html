@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>購入</title>
+<link
+	href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+	rel="stylesheet">
+<link th:href="@{/css/style.css}" rel="stylesheet">
+</head>
+<body>
+	<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+		<div class="container">
+			<a class="navbar-brand" th:href="@{/ticket/list}">千葉マーリンズ主催試合チケット購入</a>
+		</div>
+	</nav>
+	<div class="container">
+		<div class="title">
+			<h3>チケット購入</h3>
+			
+		</div>
+		<form action="" method="post">
+			<table class="table order-table">
+				<thead class="table-dark">
+					<tr>
+						<th>日付</th>
+						<th>対戦チーム</th>
+						<th>席種</th>
+						<th>単価</th>
+						<th>購入枚数</th>
+						<th>総計</th>
+					</tr>
+
+				</thead>
+				<tr>
+					<td>[[${#temporals.format(ticket.gameDate,
+						'yyyy年[]M月[]d日(E)')}]]</td>
+					<td>[[${ticket.vsTeamName}]]</td>
+					<td>[[${ticket.seatTypeName}]]</td>
+					<td><span id="price">[[${ticket.seatTypePrice}]]</span>円</td>
+					<td>
+						
+						<input type="number" name="orderNum" value="0" min="1" th:max="${ticket.stockNum}">枚
+						
+					</td>
+					<td><p><span id="total"></span>円</p></td>
+				</tr>
+			</table>
+			<input type="submit" value="カートに入れる">
+		</form>
+		<p><a th:href="@{/ticket/detail/{id}(id=${ticket.gameId})}"
+			style="display: inline-block; margin-top: 15px;">チケット詳細へ戻る</a></p>
+	</div>
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+	<script>
+		const orderNum = document.querySelector("input[name=orderNum]");
+		const price = document.getElementById("price").textContent;
+		const total = document.getElementById("total");
+		orderNum.addEventListener('input', (e)=>
+				total.textContent = Number(orderNum.value) * Number(price)
+		)
+	</script>
+</body>
+</html>
+
+
+
+
+

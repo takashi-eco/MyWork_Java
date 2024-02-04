@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>チケット一覧</title>
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+	<link th:href="@{/css/style.css}" rel="stylesheet">
+</head>
+
+<body>
+
+	<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+		<div class="container">
+			<a class="navbar-brand" th:href="@{/ticket/list}">千葉マーリンズ主催試合チケット購入</a>
+			<!-- ホバーでメニューを出す -->
+			<div class="link link-hover">
+				<button type="button" class="btn btn-primary">
+
+					<div class="login">アカウント</div>
+				</button>
+				<div class="dropDown">
+					<ul class="dropDown__list">
+						<li th:if="${isUser}" class="dropDown__item">
+							<a th:href="@{/user/menu/{id}(id=${userId})}"
+								class="dropDown__link link-primary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">会員メニュー</a>
+						</li>
+						<li th:unless="${isUser}" class="dropDown__item">
+							<a th:href="@{/ticket/login}"
+								class="dropDown__link link-primary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover"
+								data-bs-toggle="modal" data-bs-target="#exampleModal">
+								ログイン</a>
+						</li>
+						<li th:if="${isUser}" class="dropDown__item">
+							<a th:href="@{/ticket/logout}"
+								class="dropDown__link link-primary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">
+								ログアウト</a>
+						</li>
+					</ul>
+				</div>
+			</div>
+
+
+			<!-- /ホバーでメニュー -->
+
+			<!-- Modal -->
+			<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+				aria-hidden="true">
+				<div class="modal-dialog modal-dialog-centered">
+					<div class="modal-content">
+						<div class="modal-header">
+							<h1 class="modal-title fs-5" id="exampleModalLabel">ログイン</h1>
+							<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+						</div>
+						<form action="" method="post" th:object="${login}">
+							<div class="modal-body">
+								<p>ログインID：
+									<input type="email" id="floatingLoginId" placeholder="メールアドレス"
+										th:field="*{loginId}">
+								</p>
+								<p>パスワード：
+									<input type="password" id="floatingPassword" placeholder="パスワード"
+										th:field="*{loginPass}">
+								</p>
+							</div>
+							<div class="modal-footer">
+								<input type="submit" class="btn btn-primary" value="ログイン">
+								<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
+							</div>
+						</form>
+					</div>
+
+				</div>
+			</div>
+
+		</div><!-- /Modal -->
+	</nav>
+	<!-- ログアウトメッセージ -->
+	<div class="alert alert-success" th:if="${message}">[[${message}]]</div>
+	
+	
+	<div class="container">
+   <!-- <form action="" method="post">
+			<div class="my-5">
+				試合予定日: <input type="date" name="gameDate" id="gameDate" class="mr-5">
+				<input class="btn btn-primary" type="submit" value="検索">
+			</div>
+		</form> -->
+		<!-- メッセージ表示 -->
+		<div th:if="${statusMessage}" class="alert alert-success mt-4">
+			[[${statusMessage}]]
+		</div>
+
+		<table class="table table-hover" style="margin-top: 50px;">
+			<thead class="table-dark">
+				<tr>
+					<th>日付</th>
+					<th>対戦チーム</th>
+					<th>チケット販売状況</th>
+					<th>詳細</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:each="game : ${gameList}">
+					<td><a th:href="@{/ticket/detail/{id}(id=${game.id})}">[[${#temporals.format(game.gameDate,	'yyyy年[]M月[]d日(E)')}]]</a></td>
+					<td><a th:href="@{/ticket/detail/{id}(id=${game.id})}">[[${game.vsTeamName}]]</a></td>
+					<td><a th:href="@{/ticket/detail/{id}(id=${game.id})}">
+							<p><span style="color: red; font-weight: bold;">[[${game.saleStatus}]]</span><br>
+								<th:block th:switch="${game.saleStatus}">
+									<span th:case="発売前">[[${#temporals.format(game.saleStartDate, 'yyyy年[]M月[]d日(E)')}]] ～ [[${#temporals.format(game.saleEndDate, 'yyyy年[]M月[]d日(E)')}]]</span>
+									<span th:case="発売中">～[[${#temporals.format(game.saleEndDate, 'yyyy年[]M月[]d日(E)')}]]</span>
+									<span th:case="販売終了"></span>
+								</th:block>
+							</p></a></td>
+					<td><a th:href="@{/ticket/detail/{id}(id=${game.id})}"><span class="btn btn-danger"
+								style="--bs-btn-padding-y: .25rem; --bs-btn-padding-x: .75rem; --bs-btn-font-size: .75rem;">詳細へ</span></a>
+					</td>
+				</tr>
+
+			</tbody>
+		</table>
+	</div>
+
+	<!-- 2 ページ以上の場合、ページネーションを表示:start -->
+	<div th:if="${totalPages >= 2}" class="container">
+		<ul class="pagination">
+			<!-- 前のページへ -->
+			<th:block th:switch="${page}">
+				<li th:case="1" class="page-item disabled">
+					<a class="page-link" href="">&laquo;</a>
+				</li>
+				<li th:case="*" class="page-item">
+					<a class="page-link" th:href="@{/ticket/list(page=${page -1})}">&laquo;</a>
+				</li>
+			</th:block>
+			<!-- ページ番号 -->
+			<th:block th:each="index : ${#numbers.sequence(1, totalPages)}">
+				<th:block th:switch="${index}">
+					<li th:case="${page}" class="page-item active">
+						<a class="page-link" href="">[[${index}]]</a>
+					</li>
+					<li th:case="*" class="page-item">
+						<a class="page-link" th:href="@{/ticket/list(page=${index})}">[[${index}]]</a>
+					</li>
+				</th:block>
+			</th:block>
+			
+			<!-- 次のページへ -->
+			<th:block th:switch="${page}">
+				<li th:case="${totalPages}" class="page-item disabled">
+					<a class="page-link" href="">&raquo;</a>
+				</li>
+				<li th:case="*" class="page-item">
+					<a class="page-link" th:href="@{/ticket/list(page=${page + 1})}">&raquo;</a>
+				</li>
+			</th:block>
+		</ul>
+	</div>
+<!-- 2 ページ以上の場合、ページネーションを表示:end -->
+				
+				
+				
+				
+				
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+	<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+	<script>
+		const myModal = document.getElementById('exampleModal')
+		const myInput = document.getElementById('floatingLoginId')
+
+		myModal.addEventListener('shown.bs.modal', () => {
+			myInput.focus()
+		})
+
+	</script>
+</body>
+
+</html>

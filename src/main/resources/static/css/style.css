@@ -1,0 +1,123 @@
+@charset "UTF-8";
+
+.login {
+    color: white;
+    text-align: right;
+}
+
+
+
+/* ここからホバーメニュー */
+
+ul {
+    padding: 0;
+    list-style: none;
+  }
+  
+  a {
+    color: #333;
+  }
+  
+  .list {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    background-color: antiquewhite;
+  }
+  
+  .link {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 20px 30px;
+    transition: color .15s;
+  }
+  .link:hover,
+  .link:focus {
+    color: #0D6EFD;
+  }
+  
+  .link-hover::after {
+    content: '▼';
+    font-size: 10px;
+  }
+  
+  .dropDown {
+    position: absolute;
+    bottom: 0;
+    display: none;
+    padding: 10px;
+    background-color: #fff;
+    box-shadow: 0px 3px 8px -2px #777;
+    color: initial;
+    transform: translate(0, 100%);
+  }
+  
+  .link:hover > .dropDown,
+  .link:focus > .dropDown {
+    display: block;
+  }
+  
+  .dropDown__list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .dropDown__link {
+    padding: 10px 20px;
+    transition: color .15s;
+  }
+  
+
+/* ここまでホバーメニュー */
+
+
+table td {
+    overflow: hidden;
+}
+
+table td a{
+    color: black;
+    text-decoration: none;
+    display: block;
+    margin: -75px;
+    padding: 75px 75px;
+ } 
+
+.order-table {
+	table-layout: fixed;
+}
+
+.title {
+    margin-top: 50px;
+}
+
+
+th {
+    background: rgb(170, 170, 170);
+  }
+
+.btn {
+    font-size: 14px;
+    display: inline-block;
+    padding-bottom: 3px;
+    margin-left: 30px;
+}
+
+.aki {
+    color: red;
+    font-weight: bold;
+}
+
+.sukunai {
+    color: rgb(69, 69, 255);
+    font-weight: bold;
+}
+
+.rain {
+    margin-top: 0;
+    margin-right: 4px;
+    padding-bottom: 5px;
+}

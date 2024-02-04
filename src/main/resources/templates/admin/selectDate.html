@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>試合日程追加カレンダー</title>
+<link rel="stylesheet"
+	href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+<style>
+	#calendar {
+		display: flex;
+		flex-wrap: wrap;
+	}
+	
+	section {
+		margin: 10px;
+	}
+	
+	h1 {
+		font-size: 18px;
+	}
+	
+	table {
+		border-spacing: 0;
+		border-collapse: collapse;
+	}
+	
+	td {
+		border: 1px solid #ddd;
+		padding: 5px;
+		text-align: center;
+	}
+	
+	td:first-child {
+		color: red;
+	}
+	
+	td:last-child {
+		color: royalblue;
+	}
+	
+	td.is-disabled {
+		color: #ccc;
+	}
+</style>
+</head>
+<body>
+
+	<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+		<div class="container">
+			<a class="navbar-brand" th:href="@{/admin/menu}">管理者画面</a>
+		</div>
+	</nav>
+
+	<div class="container">
+		<div id="calendar"></div>
+		<button id="prev" type="button">前の3か月</button>
+		<button id="next" type="button">次の3か月</button>
+		
+	</div>
+
+	<script>
+		//
+		// カレンダー表示機能
+		// 引用元: https://qiita.com/kan_dai/items/b1850750b883f83b9bee
+		// @kan_dai(daichi kanke)
+		// 
+
+		const weeks = [ '日', '月', '火', '水', '木', '金', '土' ];
+		const date = new Date();
+		let year = date.getFullYear();
+		let month = date.getMonth() + 1;
+		const config = {
+			show : 3,
+		};
+
+		function showCalendar(year, month) {
+			for (i = 0; i < config.show; i++) {
+				const calendarHtml = createCalendar(year, month);
+				const sec = document.createElement('section');
+				sec.innerHTML = calendarHtml;
+				document.querySelector('#calendar').appendChild(sec);
+
+				month++;
+				if (month > 12) {
+					year++;
+					month = 1;
+				}
+			}
+		}
+
+		function createCalendar(year, month) {
+			const startDate = new Date(year, month - 1, 1); // 月の最初の日を取得
+			const endDate = new Date(year, month, 0); // 月の最後の日を取得
+			const endDayCount = endDate.getDate(); // 月の末日
+			const lastMonthEndDate = new Date(year, month - 2, 0); // 前月の最後の日の情報
+			const lastMonthendDayCount = lastMonthEndDate.getDate(); // 前月の末日
+			const startDay = startDate.getDay(); // 月の最初の日の曜日を取得
+			let dayCount = 1; // 日にちのカウント
+			let calendarHtml = ''; // HTMLを組み立てる変数
+
+			calendarHtml += '<h1>' + year + '/' + month + '</h1>';
+			calendarHtml += '<table>';
+
+			// 曜日の行を作成
+			for (let i = 0; i < weeks.length; i++) {
+				calendarHtml += '<td>' + weeks[i] + '</td>';
+			}
+
+			for (let w = 0; w < 6; w++) {
+				calendarHtml += '<tr>';
+
+				for (let d = 0; d < 7; d++) {
+					if (w == 0 && d < startDay) {
+						// 1行目で1日の曜日の前
+						let num = lastMonthendDayCount - startDay + d + 1;
+						calendarHtml += '<td class="is-disabled">' + num
+								+ '</td>';
+					} else if (dayCount > endDayCount) {
+						// 末尾の日数を超えた
+						let num = dayCount - endDayCount;
+						calendarHtml += '<td class="is-disabled">' + num
+								+ '</td>';
+						dayCount++;
+					} else {
+						calendarHtml += `<td class="calendar_td" data-date="${year}-${month}-${dayCount}">${dayCount}</td>`;
+						dayCount++;
+					}
+				}
+				calendarHtml += '</tr>';
+			}
+			calendarHtml += '</table>';
+
+			return calendarHtml;
+		}
+
+		function moveCalendar(e) {
+			document.querySelector('#calendar').innerHTML = '';
+
+			if (e.target.id === 'prev') {
+				month = month - 3;
+
+				if (month < 1) {
+					year--;
+					if (month === 0) {
+						month = 10;
+					} else if (month === -1) {
+						month = 11;
+					} else {
+						month = 10;
+					}
+				}
+			}
+
+			if (e.target.id === 'next') {
+				month = month + 3;
+
+				if (month > 12) {
+					year++;
+					if (month === 13) {
+						month = 1;
+					} else if (month === 14) {
+						month = 2;
+					} else {
+						month = 3;
+					}
+				}
+			}
+
+			showCalendar(year, month);
+		}
+
+		document.querySelector('#prev').addEventListener('click', moveCalendar);
+		document.querySelector('#next').addEventListener('click', moveCalendar);
+
+		document.addEventListener("click", function(e) {
+			if (e.target.classList.contains("calendar_td")) {
+				location.replace( "editGame/" + e.target.dataset.date + ".html");
+			}
+		})
+
+		showCalendar(year, month);
+	</script>
+
+	<script
+		src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+	<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+</body>
+</html>

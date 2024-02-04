@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>注文者情報登録</title>
+<link rel="stylesheet"
+	href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+<link th:href="@{/css/style.css}" rel="stylesheet">
+<style>
+.error {
+	color: #f00;
+	margin-bottom: 0;
+}
+
+.error+p {
+	margin-top: 0;
+}
+</style>
+</head>
+
+<body>
+	<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+		<div class="container">
+			<a class="navbar-brand" href="">千葉マーリンズ主催試合チケット購入</a>
+		</div>
+	</nav>
+
+	<div class="container mt-5">
+		<h1>注文者情報登録</h1>
+		<div class="row">
+			<div class="col-md-12">
+				<form action="" method="post" th:object="${order}">
+					<div class="form-group mb-3">
+						<p class="error" th:errors="*{name}"></p>
+						<label for="formName">氏名</label> <input type="text"
+							th:field="*{name}" th:value="*{name}" id="formName" class="form-control" />
+					</div>
+					<div class="form-group mb-3">
+						<p class="error" th:errors="*{email}"></p>
+						<label for="formEmail">メールアドレス</label> <input type="text"
+							th:field="*{email}" th:value="*{email}" id="formEmail" class="form-control" />
+					</div>
+					<div class="form-group mb-3">
+						<p class="error" th:errors="*{zipcode}"></p>
+						<label for="formZipcode">郵便番号</label> <input type="number"
+							th:field="*{zipcode}" th:value="*{zipcode}" id="formZipcode" class="form-control" />
+					</div>
+					<div class="form-group mb-3">
+						<p class="error" th:errors="*{address}"></p>
+						<label for="formAddress">住所</label> <input type="text"
+							th:field="*{address}" th:value="*{address}" id="formAddress" class="form-control" />
+					</div>
+
+					<div class="form-group mb-3">
+						<p class="error" th:errors="*{payment}"></p>
+						<label for="formPayment">支払方法</label>
+						<select	th:field="*{payment}" id="formPayment" class="form-control">
+							<option th:each="type : ${paymentTypeList}" th:value="${type.id}"
+								th:text="${type.name}"></option>
+						</select>
+					</div>
+					<div class="form-group mb-3">
+						<input type="submit" class="btn btn-primary" value="購入確定" /> 
+						<!-- <a th:href="@{/ticket/list}" class="btn btn-secondary">チケット選択へ戻る</a> -->
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+	<!-- /.container -->
+
+	<script
+		src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+	<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+</body>
+
+</html>

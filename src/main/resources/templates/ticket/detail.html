@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>席種選択</title>
+   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+   <link th:href="@{/css/style.css}" rel="stylesheet">
+</head>
+
+<body>
+   <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+      <div class="container">
+         <a class="navbar-brand" href="">千葉マーリンズ主催試合チケット購入</a>
+      </div>
+   </nav>
+
+   <div class="container">
+      <div class="title">
+         <dl>
+            <dt>[[${#temporals.format(ticketList[0].gameDate, 'yyyy年[]M月[]d日(E)')}]]</dt>
+            <dt>[[${#temporals.format(ticketList[0].startTime, 'HH:mm')}]] プレイボール（[[${#temporals.format(ticketList[0].openTime, 'HH:mm')}]]開場）</dt>
+            <dt>会場：千葉マーリンスタジアム</dt>
+         </dl>
+      </div>
+      <div th:if="${statusMessage}" class="alert alert-success mt-4">
+				[[${statusMessage}]]
+	  </div>
+      <table class="table table-hover order-table">
+         <thead class="table-dark">
+            <tr>
+               <th>席種</th>
+               <th>チケット販売状況</th>
+               <th:block th:if="${isUser}">
+	               <th>割引ステータス</th>
+			   </th:block>
+               <th>価格</th>
+               <th></th>
+            </tr>
+         </thead>
+         <tbody>
+            <tr th:each="ticket : ${ticketList}">
+               <td><a th:href="@{/ticket/purchase/{id}(id=${ticket.id})}">[[${ticket.seatTypeName}]]</a></td>
+               <td><a th:href="@{/ticket/purchase/{id}(id=${ticket.id})}"><span id="stock_status" class="aki">[[${ticket.stockStatus}]]</span></a></td>
+               
+               <th:block th:if="${isUser}">
+               		<td><a th:href="@{/ticket/purchase/{id}(id=${ticket.id})}">
+						   <th:block th:if="${ticket.discountName == '雨割引'}"><img class="rain" th:src="@{/images/rain.png}" width="16px"></th:block>
+						   [[${ticket.discountName}]]</a></td>
+           	   </th:block>
+           	   
+               <td><a th:href="@{/ticket/purchase/{id}(id=${ticket.id})}">[[${ticket.seatTypePrice}]]円</a></td>
+               <td><a th:href="@{/ticket/purchase/{id}(id=${ticket.id})}"><span class="btn btn-danger"
+                style="--bs-btn-padding-y: .25rem; --bs-btn-padding-x: .75rem; --bs-btn-font-size: .75rem;">枚数選択へ</span></a>
+          </td>
+            </tr>
+            
+         </tbody>
+      </table>
+      <a th:href="@{/ticket/list}" style="display:block; margin-top: 15px;">チケット一覧へ戻る</a>
+
+	</div>
+	
+      <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

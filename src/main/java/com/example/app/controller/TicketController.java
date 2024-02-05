@@ -147,6 +147,17 @@ public class TicketController {
 			
 		}
 		
+		// 発売前の処理
+		
+		for (Ticket ticket : ticketList) {
+			String beforeSale = "発売前";
+			if(ticket.getSaleStatus().equals(beforeSale)) {
+//				System.out.println(ticket);
+				rd.addFlashAttribute("statusMessage", "選択された試合のチケットは、発売前です");
+				return "redirect:/ticket/list";
+			}
+			
+		}
 //		List<Ticket> ticketList = ticketService.getTicketsByGameId(id);
 		// 会員ユーザー向け割引の表示
 		if(session.getAttribute("loginStatus") != null) {

@@ -76,11 +76,11 @@
 
 		</div><!-- /Modal -->
 	</nav>
-	<!-- ログアウトメッセージ -->
-	<div class="alert alert-success" th:if="${message}">[[${message}]]</div>
-	
-	
+	<!-- メッセージ -->
 	<div class="container">
+		<div class="alert alert-success col-8" th:if="${message}">[[${message}]]</div>
+		<div class="alert alert-danger col-8" th:if="${loginId}">[[${loginId}]]</div>
+	
    <!-- <form action="" method="post">
 			<div class="my-5">
 				試合予定日: <input type="date" name="gameDate" id="gameDate" class="mr-5">

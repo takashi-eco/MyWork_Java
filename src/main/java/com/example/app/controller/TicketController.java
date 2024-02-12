@@ -92,6 +92,7 @@ public class TicketController {
 	public String listAndLoginPost(
 			@Validated (LoginGroup.class) Login login,
 			Errors errors,
+			RedirectAttributes ra,
 			Model model) throws Exception {
 		if(errors.hasErrors()) {
 			return "ticket/list";
@@ -100,8 +101,8 @@ public class TicketController {
 		// 正しいIDとパスワードの組み合わせか確認
 				User user = userService.getUserByLoginId(login.getLoginId());
 				if(user == null || !login.isCorrectPassword(user.getLoginPass())) {
-					errors.rejectValue("loginId", "error.incorrect_id_or_password");
-					return "ticket/list";
+					ra.addFlashAttribute("loginId", "ログインIDまたはパスワードが正しくありません。");
+					return "redirect:/ticket/list";
 				}
 				
 		LoginStatus loginStatus = LoginStatus.builder()

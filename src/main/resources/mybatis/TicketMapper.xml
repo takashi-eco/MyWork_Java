@@ -11,12 +11,12 @@
 				games.sale_start_date,
 				games.sale_end_date,
 	  <![CDATA[ CASE
-				WHEN games.sale_start_date > NOW() THEN '発売前'
-				WHEN games.sale_start_date < NOW() AND NOW() < games.sale_end_date THEN '発売中'
-				WHEN games.sale_end_date < NOW() THEN '販売終了'
+				WHEN games.sale_start_date > CURDATE() THEN '発売前'
+				WHEN games.sale_start_date <= CURDATE() AND CURDATE() <= games.sale_end_date THEN '発売中'
+				WHEN games.sale_end_date < CURDATE() THEN '販売終了'
 				END AS sale_status,
 				CASE
-	  			WHEN DATE_ADD(games.sale_end_date, INTERVAL 5 DAY) >= NOW() THEN 'true'
+	  			WHEN DATE_ADD(games.sale_end_date, INTERVAL 5 DAY) >= CURDATE() THEN 'true'
                 ELSE 'false'
 	  			END AS disp_flag ]]>
 		FROM games
@@ -38,19 +38,19 @@
 				
 	  <![CDATA[ CASE
 				WHEN weather_main.main = "Rain" THEN "雨割引"
-				WHEN DATE_SUB(DATE_ADD(NOW(), INTERVAL 3 MONTH), INTERVAL 14 DAY) <= games.date 
-					AND games.date <= DATE_ADD(NOW(), INTERVAL 3 MONTH) THEN "早割り" 
+				WHEN DATE_SUB(DATE_ADD(CURDATE(), INTERVAL 3 MONTH), INTERVAL 14 DAY) <= games.date 
+					AND games.date <= DATE_ADD(CURDATE(), INTERVAL 3 MONTH) THEN "早割り" 
 				END AS discount_name,
 	  			CASE
 				WHEN weather_main.main = "Rain" THEN 30
-				WHEN DATE_SUB(games.date, INTERVAL 3 MONTH) <= NOW() 
-					AND NOW() <= DATE_ADD(DATE_SUB(games.date, INTERVAL 3 MONTH), INTERVAL 2 WEEK) THEN 10
+				WHEN DATE_SUB(games.date, INTERVAL 3 MONTH) <= CURDATE() 
+					AND CURDATE() <= DATE_ADD(DATE_SUB(games.date, INTERVAL 3 MONTH), INTERVAL 2 WEEK) THEN 10
 				ELSE 0
 				END AS discount_rate,
 				CASE
-				WHEN games.sale_start_date > NOW() THEN '発売前'
-				WHEN games.sale_start_date < NOW() AND NOW() < games.sale_end_date THEN '発売中'
-				WHEN games.sale_end_date < NOW() THEN '販売終了'
+				WHEN games.sale_start_date > CURDATE() THEN '発売前'
+				WHEN games.sale_start_date <= CURDATE() AND CURDATE() <= games.sale_end_date THEN '発売中'
+				WHEN games.sale_end_date < CURDATE() THEN '販売終了'
 				END AS sale_status, 
 				seat_type.name AS seatTypeName,
 				seat_type.price AS seatTypePrice,
@@ -91,8 +91,8 @@
 				game_title.name AS vsTeamName, 
 	  <![CDATA[ CASE
 				WHEN weather_main.main = "Rain" THEN 30
-				WHEN DATE_SUB(games.date, INTERVAL 3 MONTH) <= NOW() 
-					AND NOW() <= DATE_ADD(DATE_SUB(games.date, INTERVAL 3 MONTH), INTERVAL 2 WEEK) THEN 10
+				WHEN DATE_SUB(games.date, INTERVAL 3 MONTH) <= CURDATE() 
+					AND CURDATE() <= DATE_ADD(DATE_SUB(games.date, INTERVAL 3 MONTH), INTERVAL 2 WEEK) THEN 10
 				ELSE 0
 				END AS discount_rate, ]]>
 				seat_type.name AS seatTypeName,
@@ -133,12 +133,12 @@
 				games.sale_start_date,
 				games.sale_end_date,
 	  <![CDATA[ CASE
-				WHEN games.sale_start_date > NOW() THEN '発売前'
-				WHEN games.sale_start_date < NOW() AND NOW() < games.sale_end_date THEN '発売中'
-				WHEN games.sale_end_date < NOW() THEN '販売終了'
+				WHEN games.sale_start_date > CURDATE() THEN '発売前'
+				WHEN games.sale_start_date <= CURDATE() AND CURDATE() <= games.sale_end_date THEN '発売中'
+				WHEN games.sale_end_date < CURDATE() THEN '販売終了'
 				END AS sale_status,
 				CASE
-	  			WHEN DATE_ADD(games.sale_end_date, INTERVAL 2 DAY) >= NOW() THEN 'true'
+	  			WHEN DATE_ADD(games.sale_end_date, INTERVAL 5 DAY) >= CURDATE() THEN 'true'
                 ELSE 'false'
 	  			END AS disp_flag ]]>
 		FROM games
@@ -152,7 +152,7 @@
 		SELECT 
 		COUNT(
 		<![CDATA[ CASE
-		   		  WHEN DATE_ADD(sale_end_date, INTERVAL 5 DAY) >= NOW() THEN 'true'
+		   		  WHEN DATE_ADD(sale_end_date, INTERVAL 5 DAY) >= CURDATE() THEN 'true'
 		   		  END) AS disp_flag ]]>
 		FROM games
 	</select>
